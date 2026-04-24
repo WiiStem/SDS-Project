@@ -1,0 +1,112 @@
+<%- include("partials/header", { title: "Browse SDS" }) %>
+
+<section class="hero-card">
+  <div>
+    <span class="eyebrow">Public Listing</span>
+    <h1>Find the right SDS fast.</h1>
+    <p>
+      Use keyword search, lab filters, and tag filters. QR codes can link
+      directly to a filtered view for a room or lab.
+    </p>
+  </div>
+  <div class="hero-actions">
+    <a class="button button-secondary" href="/sds">Reset Filters</a>
+    <button class="button" type="button" data-print-selected>Print Selected</button>
+  </div>
+</section>
+
+<section class="panel">
+  <form class="filter-grid" method="get" action="/sds">
+    <label>
+      Search
+      <input type="text" name="search" value="<%= search ?? "" %>" placeholder="Acetone, solvent, corrosive..." />
+    </label>
+
+    <label>
+      Tags
+      <input type="text" name="tag" value="<%= tagSearch ?? "" %>" placeholder="flammable, solvent, corrosive" />
+    </label>
+
+    <label>
+      Sort
+      <select name="sort">
+        <option value="product_asc" <%= sort === "product_asc" ? "selected" : "" %>>Product A-Z</option>
+        <option value="product_desc" <%= sort === "product_desc" ? "selected" : "" %>>Product Z-A</option>
+        <option value="updated_desc" <%= sort === "updated_desc" ? "selected" : "" %>>Recently Updated</option>
+        <option value="created_desc" <%= sort === "created_desc" ? "selected" : "" %>>Recently Added</option>
+      </select>
+    </label>
+
+    <fieldset>
+      <legend>Labs</legend>
+      <div class="chip-grid">
+        <% labs.forEach((lab) => { %>
+          <label class="chip">
+            <input type="checkbox" name="lab" value="<%= lab.slug %>" <%= selectedLabs.includes(lab.slug) ? "checked" : "" %> />
+            <span><%= lab.name %></span>
+          </label>
+        <% }) %>
+      </div>
+    </fieldset>
+
+    <div class="filter-actions">
+      <button type="submit" class="button">Apply Filters</button>
+      <a class="button button-secondary" href="/sds">Clear</a>
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  <form data-selection-form>
+    <div class="table-scroll">
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th>Select</th>
+            <th>Product</th>
+            <th>Description</th>
+            <th>Link</th>
+            <th>Labs</th>
+            <th>Additional Tags</th>
+            <% if (publicNotes) { %><th>Notes</th><% } %>
+            <% if (isAdmin) { %><th>Actions</th><% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!documents.length) { %>
+            <tr>
+              <td colspan="<%= isAdmin ? (publicNotes ? 8 : 7) : (publicNotes ? 7 : 6) %>">No SDS records match the current filters.</td>
+            </tr>
+          <% } %>
+          <% documents.forEach((document) => { %>
+            <tr>
+              <td>
+                <input type="checkbox" name="selectedIds" value="<%= document.id %>" />
+              </td>
+              <td><a href="/sds/<%= document.id %>"><%= document.product %></a></td>
+              <td><%= document.description %></td>
+              <td><a href="/sds/<%= document.id %>">View PDF</a></td>
+              <td>
+                <%= document.labs.map((item) => item.lab.name).join(", ") %>
+              </td>
+              <td>
+                <%= document.tags.map((item) => item.tag.name).join(", ") %>
+              </td>
+              <% if (publicNotes) { %><td><%= document.notes ?? "" %></td><% } %>
+              <% if (isAdmin) { %>
+                <td class="actions-cell">
+                  <a href="/admin/sds/<%= document.id %>/edit">Edit</a>
+                  <form action="/admin/sds/<%= document.id %>/delete" method="post">
+                    <button type="submit" class="link-button">Remove</button>
+                  </form>
+                </td>
+              <% } %>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </form>
+</section>
+
+<%- include("partials/footer") %>

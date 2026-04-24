@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  microsoftId  String     @unique
+  email        String     @unique
+  role         UserRole   @default(ADMIN)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  createdDocs  Document[] @relation("CreatedBy")
+  updatedDocs  Document[] @relation("UpdatedBy")
+}
+
+model Document {
+  id               Int           @id @default(autoincrement())
+  product          String
+  description      String        @db.Text
+  notes            String?       @db.Text
+  bucketKey        String        @unique
+  originalFilename String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  createdById      Int?
+  updatedById      Int?
+
+  createdBy        User?         @relation("CreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy        User?         @relation("UpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  labs             DocumentLab[]
+  tags             DocumentTag[]
+
+  @@index([product])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model Lab {
+  id        Int           @id @default(autoincrement())
+  name      String
+  slug      String        @unique
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  documents DocumentLab[]
+}
+
+model Tag {
+  id        Int           @id @default(autoincrement())
+  name      String
+  slug      String        @unique
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  documents DocumentTag[]
+}
+
+model DocumentLab {
+  documentId Int
+  labId      Int
+
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  lab        Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  @@id([documentId, labId])
+  @@index([labId])
+}
+
+model DocumentTag {
+  documentId Int
+  tagId      Int
+
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([documentId, tagId])
+  @@index([tagId])
+}
+
+enum UserRole {
+  ADMIN
+}

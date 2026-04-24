@@ -1,0 +1,32 @@
+<%- include("partials/header", { title: "Print Selected" }) %>
+
+<section class="detail-topbar">
+  <a href="/sds" class="button button-secondary">Back to Listings</a>
+  <% if (mergedPrintUrl) { %>
+    <a class="button" href="<%= mergedPrintUrl %>" target="_blank" rel="noreferrer">Print Combined PDF</a>
+  <% } %>
+</section>
+
+<section class="panel">
+  <span class="eyebrow">Batch Print</span>
+  <h1>Selected SDS documents</h1>
+  <p>Use the combined PDF above to print every page from all selected SDS files in one print dialog.</p>
+</section>
+
+<% if (!documents.length) { %>
+  <section class="panel">
+    <p>No documents were selected for printing.</p>
+  </section>
+<% } %>
+
+<% documents.forEach((document) => { %>
+  <section class="panel print-block">
+    <div class="print-block-header">
+      <h2><%= document.product %></h2>
+      <a href="<%= document.fileUrl %>" target="_blank" rel="noreferrer">Open PDF</a>
+    </div>
+    <iframe title="<%= document.product %>" src="<%= document.fileUrl %>" class="print-frame"></iframe>
+  </section>
+<% }) %>
+
+<%- include("partials/footer") %>

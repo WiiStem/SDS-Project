@@ -1,0 +1,96 @@
+<%- include("partials/header", { title: "Admin SDS" }) %>
+
+<section class="hero-card">
+  <div>
+    <span class="eyebrow">Admin Console</span>
+    <h1>Manage SDS records and bucket-backed PDFs.</h1>
+    <p>
+      Search, filter, replace PDFs, and keep labs and tags organized without
+      touching file URLs by hand.
+    </p>
+  </div>
+  <div class="hero-actions">
+    <a class="button" href="/admin/sds/new">Add SDS</a>
+    <a class="button button-secondary" href="/sds">Open Public View</a>
+  </div>
+</section>
+
+<section class="panel">
+  <form class="filter-grid" method="get" action="/admin/sds">
+    <label>
+      Search
+      <input type="text" name="search" value="<%= search ?? "" %>" placeholder="Search records..." />
+    </label>
+
+    <label>
+      Tags
+      <input type="text" name="tag" value="<%= tagSearch ?? "" %>" placeholder="flammable, solvent, corrosive" />
+    </label>
+
+    <label>
+      Sort
+      <select name="sort">
+        <option value="updated_desc" <%= sort === "updated_desc" ? "selected" : "" %>>Recently Updated</option>
+        <option value="created_desc" <%= sort === "created_desc" ? "selected" : "" %>>Recently Added</option>
+        <option value="product_asc" <%= sort === "product_asc" ? "selected" : "" %>>Product A-Z</option>
+        <option value="product_desc" <%= sort === "product_desc" ? "selected" : "" %>>Product Z-A</option>
+      </select>
+    </label>
+
+    <fieldset>
+      <legend>Labs</legend>
+      <div class="chip-grid">
+        <% labs.forEach((lab) => { %>
+          <label class="chip">
+            <input type="checkbox" name="lab" value="<%= lab.slug %>" <%= selectedLabs.includes(lab.slug) ? "checked" : "" %> />
+            <span><%= lab.name %></span>
+          </label>
+        <% }) %>
+      </div>
+    </fieldset>
+
+    <div class="filter-actions">
+      <button type="submit" class="button">Apply Filters</button>
+      <a class="button button-secondary" href="/admin/sds">Clear</a>
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="table-scroll">
+    <table class="records-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Labs</th>
+          <th>Tags</th>
+          <th>Updated</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!documents.length) { %>
+          <tr>
+            <td colspan="5">No records match the current filters.</td>
+          </tr>
+        <% } %>
+        <% documents.forEach((document) => { %>
+          <tr>
+            <td><a href="/sds/<%= document.id %>"><%= document.product %></a></td>
+            <td><%= document.labs.map((item) => item.lab.name).join(", ") %></td>
+            <td><%= document.tags.map((item) => item.tag.name).join(", ") %></td>
+            <td><%= document.updatedAt.toLocaleDateString() %></td>
+            <td class="actions-cell">
+              <a href="/admin/sds/<%= document.id %>/edit">Edit</a>
+              <form action="/admin/sds/<%= document.id %>/delete" method="post">
+                <button type="submit" class="link-button">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<%- include("partials/footer") %>

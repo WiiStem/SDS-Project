@@ -1,0 +1,60 @@
+<%- include("partials/header", { title: document.product }) %>
+
+<section class="detail-topbar">
+  <a href="/sds" class="button button-secondary">Back to Listings</a>
+  <div class="hero-actions">
+    <a class="button" href="<%= fileUrl %>" target="_blank" rel="noreferrer">Open PDF</a>
+    <a class="button button-secondary" href="<%= fileUrl %>" target="_blank" rel="noreferrer">Print Full PDF</a>
+  </div>
+</section>
+
+<section class="detail-layout">
+  <aside class="panel metadata-panel">
+    <span class="eyebrow">SDS Record</span>
+    <h1><%= document.product %></h1>
+
+    <dl class="metadata-list">
+      <div>
+        <dt>Description</dt>
+        <dd><%= document.description %></dd>
+      </div>
+      <div>
+        <dt>Labs</dt>
+        <dd><%= document.labs.map((item) => item.lab.name).join(", ") %></dd>
+      </div>
+      <div>
+        <dt>Tags</dt>
+        <dd><%= document.tags.map((item) => item.tag.name).join(", ") || "None" %></dd>
+      </div>
+      <% if (publicNotes) { %>
+        <div>
+          <dt>Notes</dt>
+          <dd><%= document.notes ?? "None" %></dd>
+        </div>
+      <% } %>
+      <div>
+        <dt>Updated</dt>
+        <dd><%= document.updatedAt.toLocaleString() %></dd>
+      </div>
+    </dl>
+
+    <% if (isAdmin) { %>
+      <div class="admin-controls">
+        <a class="button" href="/admin/sds/<%= document.id %>/edit">Edit Record</a>
+        <form action="/admin/sds/<%= document.id %>/delete" method="post">
+          <button class="button button-danger" type="submit">Delete Record</button>
+        </form>
+      </div>
+    <% } %>
+  </aside>
+
+  <section class="panel pdf-panel">
+    <iframe
+      title="<%= document.product %> PDF"
+      src="<%= fileUrl %>"
+      class="pdf-frame"
+    ></iframe>
+  </section>
+</section>
+
+<%- include("partials/footer") %>

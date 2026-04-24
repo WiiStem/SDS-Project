@@ -1,0 +1,82 @@
+<%- include("partials/header", { title: mode === "create" ? "Add SDS" : "Edit SDS" }) %>
+
+<section class="panel form-panel">
+  <div class="section-heading">
+    <div>
+      <span class="eyebrow"><%= mode === "create" ? "Add Record" : "Edit Record" %></span>
+      <h1><%= mode === "create" ? "Create a new SDS record" : `Edit ${document.product}` %></h1>
+    </div>
+    <a href="/admin/sds" class="button button-secondary">Back to Admin</a>
+  </div>
+
+  <% if (formError) { %>
+    <div class="notice notice-error"><%= formError %></div>
+  <% } %>
+
+  <form
+    class="document-form"
+    method="post"
+    enctype="multipart/form-data"
+    action="<%= mode === "create" ? "/admin/sds" : `/admin/sds/${document.id}` %>"
+  >
+    <label>
+      Product *
+      <input type="text" name="product" required value="<%= document?.product ?? "" %>" />
+    </label>
+
+    <label>
+      Description *
+      <textarea name="description" rows="4" required><%= document?.description ?? "" %></textarea>
+    </label>
+
+    <fieldset>
+      <legend>Labs</legend>
+      <div class="check-grid">
+        <% labs.forEach((lab) => { %>
+          <label class="check-card">
+            <input type="checkbox" name="labs" value="<%= lab.id %>" <%= selectedLabIds.includes(lab.id) ? "checked" : "" %> />
+            <span><%= lab.name %></span>
+          </label>
+        <% }) %>
+      </div>
+    </fieldset>
+
+    <label>
+      Tags
+      <input
+        type="text"
+        name="tags"
+        value="<%= selectedTagNames.join(", ") %>"
+        placeholder="flammable, solvent, corrosive"
+        list="existing-tags"
+      />
+      <small>Separate tags with commas. Existing tags are suggested, but you can add new ones.</small>
+    </label>
+
+    <datalist id="existing-tags">
+      <% tags.forEach((tag) => { %>
+        <option value="<%= tag.name %>"></option>
+      <% }) %>
+    </datalist>
+
+    <label>
+      Notes
+      <textarea name="notes" rows="5"><%= document?.notes ?? "" %></textarea>
+    </label>
+
+    <label>
+      PDF <%= mode === "create" ? "*" : "(upload only if replacing)" %>
+      <input type="file" name="pdf" accept="application/pdf" <%= mode === "create" ? "required" : "" %> />
+      <% if (mode === "edit") { %>
+        <small>Current file: <%= document.originalFilename %></small>
+      <% } %>
+    </label>
+
+    <div class="form-actions">
+      <button type="submit" class="button"><%= mode === "create" ? "Save SDS" : "Update SDS" %></button>
+      <a href="/admin/sds" class="button button-secondary">Cancel</a>
+    </div>
+  </form>
+</section>
+
+<%- include("partials/footer") %>
