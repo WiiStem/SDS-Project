@@ -20,13 +20,8 @@ body {
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
   color: var(--text);
-  background:
-    radial-gradient(
-      circle at top left,
-      rgba(18, 138, 50, 0.24),
-      transparent 28%
-    ),
-    linear-gradient(180deg, #163320, #102516 55%, #0b180f);
+  background: rgb(10, 84, 30);
+
   min-height: 100vh;
 }
 
@@ -44,6 +39,7 @@ input,
 select,
 textarea {
   font: inherit;
+  color: cyan;
 }
 
 .site-header,
@@ -89,7 +85,6 @@ textarea {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
 }
 
 .hero-card {
