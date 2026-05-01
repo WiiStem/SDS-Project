@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
+model User {
   id           Int        @id @default(autoincrement())
   microsoftId  String     @unique
   email        String     @unique
@@ -15,11 +15,11 @@ model user {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  createdDocs  document[] @relation("CreatedBy")
-  updatedDocs  document[] @relation("UpdatedBy")
+  createdDocs  Document[] @relation("CreatedBy")
+  updatedDocs  Document[] @relation("UpdatedBy")
 }
 
-model document {
+model Document {
   id               Int           @id @default(autoincrement())
   product          String
   description      String        @db.Text
@@ -33,35 +33,35 @@ model document {
 
   createdBy        User?         @relation("CreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   updatedBy        User?         @relation("UpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
-  labs             documentlab[]
-  tags             documenttag[]
+  labs             DocumentLab[]
+  tags             DocumentTag[]
 
   @@index([product])
   @@index([createdAt])
   @@index([updatedAt])
 }
 
-model lab {
+model Lab {
   id        Int           @id @default(autoincrement())
   name      String
   slug      String        @unique
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  documents documentlab[]
+  documents DocumentLab[]
 }
 
-model tag {
+model Tag {
   id        Int           @id @default(autoincrement())
   name      String
   slug      String        @unique
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  documents documenttag[]
+  documents DocumentTag[]
 }
 
-model documentlab {
+model DocumentLab {
   documentId Int
   labId      Int
 
@@ -72,7 +72,7 @@ model documentlab {
   @@index([labId])
 }
 
-model documenttag {
+model DocumentTag {
   documentId Int
   tagId      Int
 
@@ -83,6 +83,6 @@ model documenttag {
   @@index([tagId])
 }
 
-enum userrole {
+enum UserRole {
   ADMIN
 }
