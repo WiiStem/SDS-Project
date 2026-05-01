@@ -79,6 +79,26 @@ Lab SDS Library is a MySQL + Prisma web app for browsing, printing, and administ
    npm run dev
    ```
 
+For a local production-style start without running migrations first:
+
+```bash
+npm run start:local
+```
+
+## Railway deployment
+
+Railway should use the normal npm start command:
+
+```bash
+npm start
+```
+
+That runs `prisma migrate deploy` before starting Express, so the MySQL tables are created from committed migrations before the app calls Prisma. If an existing Railway deployment is already failing with `The table Lab does not exist in the current database`, redeploy after confirming `DATABASE_URL` points to the Railway MySQL database. You can also run the migration once from Railway's shell:
+
+```bash
+npm run prisma:deploy
+```
+
 ## Notes
 
 - The app uses Express session memory storage by default. For production, swap it with a persistent session store.

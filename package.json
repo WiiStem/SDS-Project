@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "build": "node --check src/server.js",
-    "start": "node src/server.js",
+    "start": "npm run prisma:deploy && node src/server.js",
+    "start:local": "node src/server.js",
     "prisma:generate": "prisma generate",
+    "prisma:deploy": "prisma migrate deploy",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "node prisma/seed.js"
   },
@@ -27,10 +29,8 @@
     "passport": "^0.7.0",
     "passport-microsoft": "^1.0.0",
     "pdf-lib": "^1.17.1",
+    "prisma": "^6.6.0",
     "slugify": "^1.6.6",
     "zod": "^3.24.2"
-  },
-  "devDependencies": {
-    "prisma": "^6.6.0"
   }
 }
