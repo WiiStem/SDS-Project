@@ -86,7 +86,8 @@ publicRouter.get("/sds/print/file", async (request, response, next) => {
 
     for (const document of documents) {
       const sourcePdf = await PDFDocument.load(
-        await getPdfBuffer(document.bucketKey)
+        await getPdfBuffer(document.bucketKey),
+        { ignoreEncryption: true }
       );
       const copiedPages = await mergedPdf.copyPages(
         sourcePdf,

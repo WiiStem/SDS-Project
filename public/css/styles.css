@@ -16,13 +16,17 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
   color: var(--text);
   background: rgb(10, 84, 30);
-
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 a {
@@ -66,12 +70,15 @@ textarea {
 .brand-lockup p {
   margin: 0.35rem 0 0;
   color: var(--muted);
+  max-width: 36rem;
 }
 
 .top-nav {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .page-shell {
@@ -130,6 +137,8 @@ textarea {
   color: white;
   padding: 0.8rem 1.2rem;
   cursor: pointer;
+  min-height: 44px;
+  text-align: center;
   text-decoration: none;
 }
 
@@ -182,6 +191,7 @@ input[type="file"],
 select,
 textarea {
   width: 100%;
+  min-height: 44px;
   padding: 0.85rem 1rem;
   border-radius: 14px;
   border: 1px solid var(--line);
@@ -231,9 +241,16 @@ legend {
   overflow-x: auto;
 }
 
+.table-toolbar {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 0.85rem;
+}
+
 .records-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .records-table th,
@@ -242,6 +259,14 @@ legend {
   vertical-align: top;
   padding: 0.9rem 0.75rem;
   border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+.select-all-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
 }
 
 .actions-cell {
@@ -323,9 +348,81 @@ small {
     display: grid;
   }
 
+  .site-header,
+  .page-shell {
+    width: min(100% - 1rem, 1180px);
+  }
+
+  .site-header {
+    align-items: start;
+    padding: 1rem 0;
+  }
+
+  .brand-mark {
+    font-size: 1.25rem;
+  }
+
+  .brand-lockup p {
+    font-size: 0.95rem;
+  }
+
   .top-nav {
-    flex-wrap: wrap;
     justify-content: start;
+    gap: 0.75rem;
+  }
+
+  .hero-card,
+  .panel {
+    border-radius: 12px;
+    padding: 1rem;
+  }
+
+  .hero-card {
+    align-items: stretch;
+  }
+
+  .hero-card h1,
+  .panel h1 {
+    font-size: 1.55rem;
+    line-height: 1.15;
+  }
+
+  .hero-actions,
+  .filter-actions,
+  .form-actions,
+  .admin-controls,
+  .detail-topbar {
+    align-items: stretch;
+  }
+
+  .button {
+    width: 100%;
+  }
+
+  .chip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
+    gap: 0.5rem;
+  }
+
+  .check-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 0.5rem;
+  }
+
+  .chip {
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .check-card {
+    justify-content: flex-start;
+    border-radius: 12px;
+  }
+
+  .table-scroll {
+    overflow-x: visible;
   }
 
   .records-table thead {
@@ -342,12 +439,80 @@ small {
 
   .records-table tr {
     border-bottom: 1px solid var(--line);
-    padding: 0.25rem 0 0.75rem;
+    padding: 0.75rem 0;
   }
 
   .records-table td {
     border-bottom: 0;
-    padding: 0.35rem 0;
+    display: grid;
+    grid-template-columns: minmax(6.5rem, 34%) 1fr;
+    gap: 0.75rem;
+    padding: 0.45rem 0;
+  }
+
+  .records-table td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .records-table td[colspan] {
+    display: block;
+  }
+
+  .records-table td[colspan]::before {
+    content: none;
+  }
+
+  .actions-cell {
+    display: grid;
+    grid-template-columns: minmax(6.5rem, 34%) 1fr;
+    gap: 0.75rem;
+  }
+
+  .actions-cell form {
+    margin: 0;
+  }
+
+  .pdf-panel {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .pdf-frame {
+    border-radius: 0;
+    min-height: 60vh;
+  }
+}
+
+@media (max-width: 520px) {
+  .site-header,
+  .page-shell {
+    width: min(100% - 0.75rem, 1180px);
+  }
+
+  .top-nav a,
+  .top-nav form,
+  .top-nav .link-button {
+    width: 100%;
+  }
+
+  .top-nav .link-button {
+    justify-content: flex-start;
+  }
+
+  .records-table td,
+  .actions-cell {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+
+  .records-table td::before {
+    font-size: 0.82rem;
+  }
+
+  .records-table input[type="checkbox"] {
+    justify-self: start;
   }
 }
 

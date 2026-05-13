@@ -58,6 +58,12 @@
 
 <section class="panel">
   <form data-selection-form>
+    <div class="table-toolbar">
+      <label class="select-all-control">
+        <input type="checkbox" data-select-all />
+        <span>Select All</span>
+      </label>
+    </div>
     <div class="table-scroll">
       <table class="records-table">
         <thead>
@@ -80,21 +86,21 @@
           <% } %>
           <% documents.forEach((document) => { %>
             <tr>
-              <td>
+              <td data-label="Select">
                 <input type="checkbox" name="selectedIds" value="<%= document.id %>" />
               </td>
-              <td><a href="/sds/<%= document.id %>"><%= document.product %></a></td>
-              <td><%= document.description %></td>
-              <td><a href="/sds/<%= document.id %>">View PDF</a></td>
-              <td>
+              <td data-label="Product"><a href="/sds/<%= document.id %>"><%= document.product %></a></td>
+              <td data-label="Description"><%= document.description %></td>
+              <td data-label="Link"><a href="/sds/<%= document.id %>">View PDF</a></td>
+              <td data-label="Labs">
                 <%= document.labs.map((item) => item.lab.name).join(", ") %>
               </td>
-              <td>
+              <td data-label="Additional Tags">
                 <%= document.tags.map((item) => item.tag.name).join(", ") %>
               </td>
-              <% if (publicNotes) { %><td><%= document.notes ?? "" %></td><% } %>
+              <% if (publicNotes) { %><td data-label="Notes"><%= document.notes ?? "" %></td><% } %>
               <% if (isAdmin) { %>
-                <td class="actions-cell">
+                <td class="actions-cell" data-label="Actions">
                   <a href="/admin/sds/<%= document.id %>/edit">Edit</a>
                   <form action="/admin/sds/<%= document.id %>/delete" method="post">
                     <button type="submit" class="link-button">Remove</button>

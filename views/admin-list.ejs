@@ -76,11 +76,11 @@
         <% } %>
         <% documents.forEach((document) => { %>
           <tr>
-            <td><a href="/sds/<%= document.id %>"><%= document.product %></a></td>
-            <td><%= document.labs.map((item) => item.lab.name).join(", ") %></td>
-            <td><%= document.tags.map((item) => item.tag.name).join(", ") %></td>
-            <td><%= document.updatedAt.toLocaleDateString() %></td>
-            <td class="actions-cell">
+            <td data-label="Product"><a href="/sds/<%= document.id %>"><%= document.product %></a></td>
+            <td data-label="Labs"><%= document.labs.map((item) => item.lab.name).join(", ") %></td>
+            <td data-label="Tags"><%= document.tags.map((item) => item.tag.name).join(", ") %></td>
+            <td data-label="Updated"><%= document.updatedAt.toLocaleDateString() %></td>
+            <td class="actions-cell" data-label="Actions">
               <a href="/admin/sds/<%= document.id %>/edit">Edit</a>
               <form action="/admin/sds/<%= document.id %>/delete" method="post">
                 <button type="submit" class="link-button">Delete</button>
