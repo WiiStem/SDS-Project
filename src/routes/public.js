@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { PDFDocument } from "pdf-lib";
+import * as mupdf from "mupdf";
 import slugify from "slugify";
 
 import { env } from "../config/env.js";
@@ -82,28 +82,11 @@ publicRouter.get("/sds/print/file", async (request, response, next) => {
     }
 
     const documents = sortDocumentsByIds(await getDocumentsForPrint(ids), ids);
-    const mergedPdf = await PDFDocument.create();
-
-    for (const document of documents) {
-      const sourcePdf = await PDFDocument.load(
-        await getPdfBuffer(document.bucketKey),
-        { ignoreEncryption: true }
-      );
-      const copiedPages = await mergedPdf.copyPages(
-        sourcePdf,
-        sourcePdf.getPageIndices()
-      );
-
-      copiedPages.forEach((page) => {
-        mergedPdf.addPage(page);
-      });
-    }
-
-    const mergedBytes = await mergedPdf.save();
+    const mergedBytes = await mergePdfDocuments(documents);
 
     response.setHeader("Content-Type", "application/pdf");
     response.setHeader("Content-Disposition", 'inline; filename="selected-sds.pdf"');
-    response.send(Buffer.from(mergedBytes));
+    response.send(mergedBytes);
   } catch (error) {
     next(error);
   }
@@ -184,6 +167,47 @@ function sortDocumentsByIds(documents, ids) {
   const documentsById = new Map(documents.map((document) => [document.id, document]));
 
   return ids.map((id) => documentsById.get(id)).filter(Boolean);
+}
+
+async function mergePdfDocuments(documents) {
+  const mergedPdf = new mupdf.PDFDocument();
+  let targetPageIndex = 0;
+
+  try {
+    for (const document of documents) {
+      const buffer = await getPdfBuffer(document.bucketKey);
+      const sourcePdf = mupdf.Document
+        .openDocument(new Uint8Array(buffer), "application/pdf")
+        .asPDF();
+
+      if (!sourcePdf) {
+        throw new Error(`${document.product} is not a valid PDF document.`);
+      }
+
+      try {
+        for (
+          let sourcePageIndex = 0;
+          sourcePageIndex < sourcePdf.countPages();
+          sourcePageIndex += 1
+        ) {
+          mergedPdf.graftPage(targetPageIndex, sourcePdf, sourcePageIndex);
+          targetPageIndex += 1;
+        }
+      } finally {
+        sourcePdf.destroy();
+      }
+    }
+
+    const mergedBuffer = mergedPdf.saveToBuffer("garbage=4,compress");
+
+    try {
+      return Buffer.from(mergedBuffer.asUint8Array());
+    } finally {
+      mergedBuffer.destroy();
+    }
+  } finally {
+    mergedPdf.destroy();
+  }
 }
 
 export { publicRouter };
