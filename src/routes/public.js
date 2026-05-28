@@ -109,6 +109,49 @@ publicRouter.get("/sds/:id/file", async (request, response, next) => {
   }
 });
 
+publicRouter.get("/sds/:id/pages", async (request, response, next) => {
+  try {
+    const document = await getDocumentById(Number(request.params.id));
+
+    if (!document) {
+      return response.status(404).json({ message: "That SDS record was not found." });
+    }
+
+    response.json({
+      pageCount: await getPdfPageCount(document.bucketKey)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+publicRouter.get("/sds/:id/page/:page.png", async (request, response, next) => {
+  try {
+    const document = await getDocumentById(Number(request.params.id));
+    const pageNumber = Number(request.params.page);
+
+    if (!document || !Number.isInteger(pageNumber) || pageNumber < 1) {
+      return response.status(404).render("error", {
+        message: "That PDF page was not found."
+      });
+    }
+
+    const image = await renderPdfPagePng(document.bucketKey, pageNumber - 1);
+
+    if (!image) {
+      return response.status(404).render("error", {
+        message: "That PDF page was not found."
+      });
+    }
+
+    response.setHeader("Content-Type", "image/png");
+    response.setHeader("Cache-Control", "private, max-age=600");
+    response.send(image);
+  } catch (error) {
+    next(error);
+  }
+});
+
 publicRouter.get("/sds/:id", async (request, response, next) => {
   try {
     const document = await getDocumentById(Number(request.params.id));
@@ -167,6 +210,48 @@ function sortDocumentsByIds(documents, ids) {
   const documentsById = new Map(documents.map((document) => [document.id, document]));
 
   return ids.map((id) => documentsById.get(id)).filter(Boolean);
+}
+
+async function getPdfPageCount(bucketKey) {
+  const buffer = await getPdfBuffer(bucketKey);
+  const doc = mupdf.Document.openDocument(new Uint8Array(buffer), "application/pdf");
+
+  try {
+    return doc.countPages();
+  } finally {
+    doc.destroy();
+  }
+}
+
+async function renderPdfPagePng(bucketKey, pageIndex) {
+  const buffer = await getPdfBuffer(bucketKey);
+  const doc = mupdf.Document.openDocument(new Uint8Array(buffer), "application/pdf");
+
+  try {
+    if (pageIndex >= doc.countPages()) {
+      return null;
+    }
+
+    const page = doc.loadPage(pageIndex);
+
+    try {
+      const pixmap = page.toPixmap(
+        mupdf.Matrix.scale(2, 2),
+        mupdf.ColorSpace.DeviceRGB,
+        false
+      );
+
+      try {
+        return Buffer.from(pixmap.asPNG());
+      } finally {
+        pixmap.destroy();
+      }
+    } finally {
+      page.destroy();
+    }
+  } finally {
+    doc.destroy();
+  }
 }
 
 async function mergePdfDocuments(documents) {

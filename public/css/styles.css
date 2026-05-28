@@ -307,6 +307,17 @@ legend {
   min-height: 78vh;
 }
 
+.mobile-pdf-preview {
+  display: none;
+}
+
+.pdf-page-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: white;
+}
+
 .print-frame {
   min-height: 90vh;
 }
@@ -480,8 +491,23 @@ small {
   }
 
   .pdf-frame {
+    display: none;
     border-radius: 0;
     min-height: 60vh;
+  }
+
+  .mobile-pdf-preview {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    max-height: 72vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pdf-page-image {
+    border-radius: 8px;
   }
 }
 
